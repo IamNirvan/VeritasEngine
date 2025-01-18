@@ -40,8 +40,6 @@ func NewWebServer(opts *WebServerOptions) *WebServer {
 }
 
 func (ws *WebServer) Start() error {
-	log.Debug("starting web server")
-
 	// Run Gin in production mode if the config mode is set to prod
 	if (*ws.Config).Mode == "prod" {
 		gin.SetMode(gin.ReleaseMode)
@@ -57,6 +55,7 @@ func (ws *WebServer) Start() error {
 		Handler: r,
 	}
 
+	log.Debug("started web server")
 	return ws.Server.ListenAndServe()
 }
 

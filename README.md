@@ -1,5 +1,4 @@
 # VeritasEngine
-
 This is a flexible and customizable rule engine designed to accomodate the
 rule evaluation needs of other systems.
 
@@ -10,18 +9,36 @@ rule evaluation needs of other systems.
 - PostgreSQL
 
 # Usage
+When running the application, you can supply a `mode` flag (optional) with values `dev` or `prod` to indiciate whether to run in production mode or development mode.
 
-When running the application, you can supply a `mode` flag (optional) to indiciate whether to run in production mode or development mode.
-The system will assume the dev mode if nothin is provided.
+The system will assume the `dev` mode in the absence of the flag.
 
-To run the application, execute the following make utility command:
+## Running in producion mode
+In development mode, the system will use different configurations as defined in the `config.dev.yaml` file and make optimizations that are suitable for development.
+
+To run the application in development mode, execute the following make utility command:
 
 ```bash
-make run
+make run-dev
 ```
 
-Alternatively, you can this command the start the service. This starts it in `dev` mode. Use `prod` to run in production mode
+Or
 
 ```bash
 go run cmd/main.go -mode=dev
+```
+
+## Running in producion mode
+In production mode, the system will use different configurations as defined in the `config.prod.yaml` file and make optimizations that are suitable for production ready systems.
+
+To run the application in production mode, execute the following make utility command:
+
+```bash
+make run-prod
+```
+
+Or
+
+```bash
+go run cmd/main.go -mode=prod
 ```

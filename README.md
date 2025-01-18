@@ -28,7 +28,7 @@ Or
 go run cmd/main.go -mode=dev
 ```
 
-## Running in producion mode
+## Running in production mode
 In production mode, the system will use different configurations as defined in the `config.prod.yaml` file and make optimizations that are suitable for production ready systems.
 
 To run the application in production mode, execute the following make utility command:

@@ -60,6 +60,7 @@ func (ws *WebServer) Start() error {
 }
 
 func (ws *WebServer) Dispose(ctx context.Context) error {
-	log.Debug("stopping web server")
-	return ws.Server.Shutdown(ctx)
+	err := ws.Server.Shutdown(ctx)
+	log.Debug("stopped web server")
+	return err
 }

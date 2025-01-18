@@ -7,26 +7,22 @@ import (
 	"github.com/IamNirvan/veritasengine/internal/services/config"
 	"github.com/IamNirvan/veritasengine/internal/util"
 	"golang.org/x/sync/errgroup"
-	"gorm.io/gorm"
 )
 
 type VeritasEngine struct {
 	Config    *config.Config
 	WebServer *server.WebServer
-	Database  *gorm.DB
 }
 
 type VeritasEngineOpts struct {
 	Config    *config.Config
 	WebServer *server.WebServer
-	Database  *gorm.DB
 }
 
 func NewVeritasEngine(opts *VeritasEngineOpts) *VeritasEngine {
 	return &VeritasEngine{
 		Config:    (*opts).Config,
 		WebServer: (*opts).WebServer,
-		Database:  (*opts).Database,
 	}
 }
 

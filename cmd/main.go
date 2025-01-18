@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"os"
 	"os/signal"
 	"syscall"
@@ -25,8 +26,16 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
+	// Obtain the config mode from the command line arguments
+	configMode := flag.String("mode", "dev", "The mode in which to run the application (dev/prod)")
+	flag.Parse()
+
 	// Obtain the configuration object
-	config := config.LoadConfig()
+	config, configErr := config.LoadConfig(configMode)
+	if configErr != nil {
+		log.Fatalf("failed to load configuration due to the following error: %s", configErr.Error())
+	}
+	log.Tracef("config loaded %+v", *config)
 
 	// Obtain a connection with the data source
 	database := data.NewDataSource(config)

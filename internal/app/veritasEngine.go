@@ -6,6 +6,7 @@ import (
 	"github.com/IamNirvan/veritasengine/internal/server"
 	"github.com/IamNirvan/veritasengine/internal/services/config"
 	"github.com/IamNirvan/veritasengine/internal/util"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -20,10 +21,12 @@ type VeritasEngineOpts struct {
 }
 
 func NewVeritasEngine(opts *VeritasEngineOpts) *VeritasEngine {
-	return &VeritasEngine{
+	instance := &VeritasEngine{
 		Config:    (*opts).Config,
 		WebServer: (*opts).WebServer,
 	}
+	log.Trace("initialized veritas engine")
+	return instance
 }
 
 func (ve *VeritasEngine) Start(ctx context.Context) error {

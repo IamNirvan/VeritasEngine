@@ -14,20 +14,21 @@ import (
 )
 
 type Config struct {
+	Mode      string           `mapstructure:"mode"`
 	Log       models.Log       `mapstructure:"log"`
 	WebServer models.WebServer `mapstructure:"web_server"`
 	Database  models.Database  `mapstructure:"database"`
 }
 
 var (
-	once sync.Once
+	once     sync.Once
 	instance *Config
 )
-
 
 func newConfig() *Config {
 	return &Config{
 		// These will be overriden by config file or environment variables
+		Mode: "dev",
 		Log: models.Log{
 			Level:   "debug",
 			Methods: true,
@@ -53,34 +54,42 @@ func newConfig() *Config {
 //
 // Returns
 // - A pointer to a struct with configuration attibutes
-func LoadConfig() *Config {
-	once.Do(func () {
+func LoadConfig(mode *string) (*Config, error) {
+	if err := validateConfigMode(mode); err != nil {
+		return nil, err
+	}
+
+	once.Do(func() {
 		vpr := viper.NewWithOptions(viper.EnvKeyReplacer(strings.NewReplacer(".", "_")))
 
-		vpr.SetConfigName("config")
+		// Load the appropriate config file based on the mode
+		if *mode == "dev" {
+			vpr.SetConfigName("config.dev")
+		} else {
+			vpr.SetConfigName("config.prod")
+		}
 		vpr.SetConfigType("yaml")
-	
 		vpr.AddConfigPath("./configs")
 		vpr.AddConfigPath(".")
-	
+
 		exe, err := os.Executable()
 		if err != nil {
 			log.Fatalf("cannot access executable directory, error : %v", err)
 		}
 		vpr.AddConfigPath(path.Dir(exe))
-	
+
 		if err := vpr.ReadInConfig(); err != nil {
 			log.Fatalf("config file reading error : %v", err)
 		}
-	
+
 		vpr.SetEnvPrefix("VERITAS_ENGINE")
 		vpr.AutomaticEnv()
-	
+
 		config := newConfig()
 		if err := vpr.Unmarshal(config, viper.DecodeHook(mapstructure.ComposeDecodeHookFunc(mapstructure.TextUnmarshallerHookFunc()))); err != nil {
 			log.Fatalf("failed to decode configuration to struct with error: %v", err)
 		}
-	
+
 		var level log.Level
 		if err := level.UnmarshalText([]byte(config.Log.Level)); err != nil {
 			log.Fatal("log level not valid, error:", err)
@@ -91,7 +100,14 @@ func LoadConfig() *Config {
 		instance = config
 		log.Debug("obtained configuration")
 	})
-	return instance
+	return instance, nil
+}
+
+func validateConfigMode(mode *string) error {
+	if *mode != "dev" && *mode != "prod" {
+		return fmt.Errorf("unrecognized mode: %s", mode)
+	}
+	return nil
 }
 
 func (c *Config) GetConnectionString() string {

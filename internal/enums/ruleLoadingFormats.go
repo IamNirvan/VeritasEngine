@@ -1,0 +1,6 @@
+package enums
+
+const (
+	RULE_LOADING_FORMAT_STRING = iota
+	RULE_LOADING_FORMAT_JSON
+)

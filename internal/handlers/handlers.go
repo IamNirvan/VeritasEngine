@@ -6,6 +6,7 @@ import (
 	ruleevaluation "github.com/IamNirvan/veritasengine/internal/handlers/ruleEvaluation"
 	"github.com/IamNirvan/veritasengine/internal/services"
 	"github.com/IamNirvan/veritasengine/internal/services/config"
+	log "github.com/sirupsen/logrus"
 )
 
 type Handlers struct {
@@ -30,6 +31,7 @@ func InitializeHandlers(opts *Options) *Handlers {
 				Services: (*opts).Services,
 			}),
 		}
+		log.Trace("initialized handlers")
 	})
 	return instance
 }

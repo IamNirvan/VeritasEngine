@@ -34,6 +34,7 @@ func NewWebServer(opts *WebServerOptions) *WebServer {
 			Config:   (*opts).Config,
 			Handlers: (*opts).Handlers,
 		}
+		log.Trace("initialized web server")
 	})
 	return instance
 }
@@ -41,7 +42,13 @@ func NewWebServer(opts *WebServerOptions) *WebServer {
 func (ws *WebServer) Start() error {
 	log.Debug("starting web server")
 
-	r := gin.Default()
+	// Run Gin in production mode if the config mode is set to prod
+	if (*ws.Config).Mode == "prod" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+	r := gin.New()
+	r.Use(gin.Logger())
+	r.Use(gin.Recovery())
 
 	r.POST("/v1/evaluate/rule", (*ws.Handlers.RuleEvaluationHandler).EvaluateRule)
 

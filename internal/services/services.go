@@ -5,6 +5,7 @@ import (
 
 	"github.com/IamNirvan/veritasengine/internal/services/config"
 	ruleevaluation "github.com/IamNirvan/veritasengine/internal/services/ruleEvaluation"
+	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -30,6 +31,7 @@ func InitializeServices(opts *Options) *Services {
 				Database: (*opts).Database,
 			}),
 		}
+		log.Trace("initialized services")
 	})
 	return instance
 }

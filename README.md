@@ -13,7 +13,7 @@ When running the application, you can supply a `mode` flag (optional) with value
 
 The system will assume the `dev` mode in the absence of the flag.
 
-## Running in producion mode
+## Running in development mode
 In development mode, the system will use different configurations as defined in the `config.dev.yaml` file and make optimizations that are suitable for development.
 
 To run the application in development mode, execute the following make utility command:

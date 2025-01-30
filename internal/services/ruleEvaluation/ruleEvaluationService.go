@@ -3,12 +3,12 @@ package ruleevaluation
 import (
 	"context"
 
+	settings "github.com/IamNirvan/veritasengine/configs"
 	"github.com/IamNirvan/veritasengine/internal/errors"
 	"github.com/IamNirvan/veritasengine/internal/models/facts"
 	"github.com/IamNirvan/veritasengine/internal/services/config"
 	"github.com/IamNirvan/veritasengine/internal/services/engine"
 	"github.com/IamNirvan/veritasengine/internal/services/engine/library"
-	"github.com/IamNirvan/veritasengine/internal/util/settings"
 	"github.com/hyperjumptech/grule-rule-engine/ast"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -38,8 +38,12 @@ func NewRuleEvaluationServiceV1(opts *RuleEvaluationOptions) *RuleEvaluationServ
 
 func (res *RuleEvaluationServiceV1) EvaluateRule(fact *facts.GeneralInput, ctx context.Context) (*[]interface{}, *errors.ServiceError) {
 	// Get the updated library
-	libraryManager := library.NewLibraryManager(res.Config)
+	libraryManager := library.NewLibraryManager(res.Config, res.Database)
 	lib := (*libraryManager).GetLibrary()
+	if lib == nil {
+		log.Error("error when obtaining library")
+		return nil, &errors.ServiceError{Error: "error when obtaining library", Status: 500}
+	}
 
 	// Fetch knowledge base
 	knowledgeBase, knowledgeBaseErr := lib.NewKnowledgeBaseInstance(settings.LIBRARY_KNOWLEDGE_BASE_NAME, settings.LIBRARY_VERSION)

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"sync"
 
+	settings "github.com/IamNirvan/veritasengine/configs"
 	"github.com/IamNirvan/veritasengine/internal/handlers"
 	"github.com/IamNirvan/veritasengine/internal/services/config"
 	"github.com/gin-gonic/gin"
@@ -48,7 +49,9 @@ func (ws *WebServer) Start() error {
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 
-	r.POST("/v1/evaluate/rule", (*ws.Handlers.RuleEvaluationHandler).EvaluateRule)
+	// Create a router group under the engine's version 1 base url
+	version1Base := r.Group(settings.SERVER_BASE_URL_V1)
+	version1Base.POST("/evaluate/rule", (*ws.Handlers.RuleEvaluationHandler).EvaluateRule)
 
 	ws.Server = &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", ws.Config.WebServer.Host, ws.Config.WebServer.Port),

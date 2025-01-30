@@ -3,14 +3,14 @@ package facts
 import "github.com/IamNirvan/veritasengine/internal/models/response"
 
 type GeneralInput struct {
-	Input    *interface{}
-	Response *[]interface{}
+	Input    *interface{}   `json:"input"`
+	Response *[]interface{} `json:"response"`
 }
 
 func NewFact() *GeneralInput {
 	return &GeneralInput{
 		Input:    nil,
-		Response: nil,
+		Response: &[]interface{}{},
 	}
 }
 
@@ -28,7 +28,7 @@ func (gi *GeneralInput) StringListHaveMatchingItems(listA []string, listB []stri
 	return false
 }
 
-func (gi *GeneralInput) AddToResponse(responseType int, statusType int, data interface{}) {
+func (gi *GeneralInput) AddToResponse(responseType int64, statusType int64, data interface{}) {
 	*gi.Response = append(*gi.Response, response.RuleEvaluationResponse{
 		ResponseType: responseType,
 		StatusType:   statusType,

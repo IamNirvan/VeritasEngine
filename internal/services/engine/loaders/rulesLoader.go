@@ -24,10 +24,11 @@ var (
 	once     sync.Once
 )
 
-func NewRulesLoader(cfg *config.Config) *RulesLoader {
+func NewRulesLoader(cfg *config.Config, db *gorm.DB) *RulesLoader {
 	once.Do(func() {
 		instance = &RulesLoaderV1{
 			Config: cfg,
+			DB:     db,
 		}
 	})
 	return &instance
@@ -79,6 +80,6 @@ func (rl *RulesLoaderV1) loadRulesFromDB() (*[]string, error) {
 	if err := rl.DB.Table("rules").Select("rule").Find(&loadedRules).Error; err != nil {
 		return nil, fmt.Errorf("failed to load rules from database: %v", err)
 	}
-	log.Debugf("loaded %d rule(s)", len(loadedRules))
+	log.Tracef("loaded %d rule(s)", len(loadedRules))
 	return &loadedRules, nil
 }

@@ -48,14 +48,16 @@ func (handler *RuleEvaluationHandlerV1) EvaluateRule(ctx *gin.Context) {
 	log.Debug(" evaluating rules")
 
 	// Decode the fact
-	var fact facts.GeneralInput
-	if err := ctx.ShouldBindJSON(&fact); err != nil {
+	fact := facts.NewFact()
+	if err := ctx.ShouldBindJSON(fact); err != nil {
 		ctx.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
+	log.Debugf("decoded fact: %v", fact)
+
 	// Evaluate the rules using the decoded fact
-	if response, err := (*handler.Services.RuleEvaluationService).EvaluateRule(&fact, ctx); err != nil {
+	if response, err := (*handler.Services.RuleEvaluationService).EvaluateRule(fact, ctx); err != nil {
 		ctx.JSON(err.Status, gin.H{"error": err.Error})
 		return
 	} else {

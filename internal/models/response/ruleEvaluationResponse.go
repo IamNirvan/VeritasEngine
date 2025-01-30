@@ -1,7 +1,7 @@
 package response
 
 type RuleEvaluationResponse struct {
-	ResponseType int
-	StatusType   int
+	ResponseType int64
+	StatusType   int64
 	Payload      *interface{}
 }

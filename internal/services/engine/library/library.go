@@ -6,15 +6,11 @@ import (
 	"github.com/IamNirvan/veritasengine/internal/enums"
 	"github.com/IamNirvan/veritasengine/internal/services/config"
 	rulesLoader "github.com/IamNirvan/veritasengine/internal/services/engine/loaders"
+	"github.com/IamNirvan/veritasengine/internal/util/settings"
 	"github.com/hyperjumptech/grule-rule-engine/ast"
 	"github.com/hyperjumptech/grule-rule-engine/builder"
 	"github.com/hyperjumptech/grule-rule-engine/pkg"
 	log "github.com/sirupsen/logrus"
-)
-
-const (
-	KNOWLEDGE_BASE_NAME = "rules"
-	VERSION             = "0.1"
 )
 
 type LibraryManager interface {
@@ -62,7 +58,7 @@ func (lm *LibraryManagerV1) GetLibrary() *ast.KnowledgeLibrary {
 
 	library := ast.NewKnowledgeLibrary()
 	ruleBuilder := builder.NewRuleBuilder(library)
-	if buildErr := ruleBuilder.BuildRuleFromResource(KNOWLEDGE_BASE_NAME, VERSION, pkg.NewBytesResource([]byte(rules))); buildErr != nil {
+	if buildErr := ruleBuilder.BuildRuleFromResource(settings.LIBRARY_KNOWLEDGE_BASE_NAME, settings.LIBRARY_VERSION, pkg.NewBytesResource([]byte(rules))); buildErr != nil {
 		log.Warn("failed to construct library")
 		return nil
 	}

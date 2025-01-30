@@ -4,16 +4,18 @@ import (
 	"context"
 
 	"github.com/IamNirvan/veritasengine/internal/errors"
+	"github.com/IamNirvan/veritasengine/internal/models/facts"
 	"github.com/IamNirvan/veritasengine/internal/services/config"
 	"github.com/IamNirvan/veritasengine/internal/services/engine"
 	"github.com/IamNirvan/veritasengine/internal/services/engine/library"
+	"github.com/IamNirvan/veritasengine/internal/util/settings"
 	"github.com/hyperjumptech/grule-rule-engine/ast"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
 type RuleEvaluationService interface {
-	EvaluateRule(interface{}, context.Context) (*interface{}, *errors.ServiceError)
+	EvaluateRule(*facts.GeneralInput, context.Context) (*[]interface{}, *errors.ServiceError)
 }
 
 type RuleEvaluationServiceV1 struct {
@@ -34,13 +36,13 @@ func NewRuleEvaluationServiceV1(opts *RuleEvaluationOptions) *RuleEvaluationServ
 	return &service
 }
 
-func (res *RuleEvaluationServiceV1) EvaluateRule(fact interface{}, ctx context.Context) (*interface{}, *errors.ServiceError) {
+func (res *RuleEvaluationServiceV1) EvaluateRule(fact *facts.GeneralInput, ctx context.Context) (*[]interface{}, *errors.ServiceError) {
 	// Get the updated library
 	libraryManager := library.NewLibraryManager(res.Config)
 	lib := (*libraryManager).GetLibrary()
 
 	// Fetch knowledge base
-	knowledgeBase, knowledgeBaseErr := lib.NewKnowledgeBaseInstance(library.KNOWLEDGE_BASE_NAME, library.VERSION)
+	knowledgeBase, knowledgeBaseErr := lib.NewKnowledgeBaseInstance(settings.LIBRARY_KNOWLEDGE_BASE_NAME, settings.LIBRARY_VERSION)
 	if knowledgeBaseErr != nil {
 		log.Errorf("error when obtaining instance of KnowledgeBase: %v", knowledgeBaseErr.Error())
 		return nil, &errors.ServiceError{Error: knowledgeBaseErr.Error(), Status: 500}
@@ -51,7 +53,7 @@ func (res *RuleEvaluationServiceV1) EvaluateRule(fact interface{}, ctx context.C
 
 	// Create a data context
 	dataCtx := ast.NewDataContext()
-	if dataCtxErr := dataCtx.Add("DDF", fact); dataCtxErr != nil {
+	if dataCtxErr := dataCtx.Add(settings.FACT_ALIAS, fact); dataCtxErr != nil {
 		log.Errorf("error when adding fact to data context: %v", dataCtxErr.Error())
 		return nil, &errors.ServiceError{Error: dataCtxErr.Error(), Status: 500}
 	}
@@ -62,6 +64,9 @@ func (res *RuleEvaluationServiceV1) EvaluateRule(fact interface{}, ctx context.C
 		return nil, &errors.ServiceError{Error: engineErr.Error(), Status: 500}
 	}
 
-	// TODO: finalize the response
-	return nil, nil
+	// Fetch the response from the fact
+	response := &fact.Response
+	log.Tracef("evaluated rules response: %+v", response)
+
+	return *response, nil
 }

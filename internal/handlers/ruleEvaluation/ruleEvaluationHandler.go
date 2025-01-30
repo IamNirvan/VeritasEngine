@@ -3,6 +3,7 @@ package ruleevaluation
 import (
 	"sync"
 
+	"github.com/IamNirvan/veritasengine/internal/models/facts"
 	"github.com/IamNirvan/veritasengine/internal/services"
 	"github.com/IamNirvan/veritasengine/internal/services/config"
 	"github.com/gin-gonic/gin"
@@ -46,7 +47,18 @@ func NewRuleEvaluationHandler(opts *RuleEvaluationOptions) *RuleEvaluationHandle
 func (handler *RuleEvaluationHandlerV1) EvaluateRule(ctx *gin.Context) {
 	log.Debug(" evaluating rules")
 
-	// TODO: improve this
-	(*handler.Services.RuleEvaluationService).EvaluateRule("", ctx)
-	ctx.JSON(200, "done")
+	// Decode the fact
+	var fact facts.GeneralInput
+	if err := ctx.ShouldBindJSON(&fact); err != nil {
+		ctx.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Evaluate the rules using the decoded fact
+	if response, err := (*handler.Services.RuleEvaluationService).EvaluateRule(&fact, ctx); err != nil {
+		ctx.JSON(err.Status, gin.H{"error": err.Error})
+		return
+	} else {
+		ctx.JSON(200, response)
+	}
 }
